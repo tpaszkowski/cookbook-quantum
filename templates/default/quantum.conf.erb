@@ -31,10 +31,10 @@ state_path = <%= node["quantum"]["state_path"] %>
 # publish_errors = False
 
 # Address to bind the API server
-<% "bind_host=@bind_address" if @bind_address %>
+<%= "bind_host=#{@bind_address}" if @bind_address %>
 
 # Port the bind the API server to
-<% "bind_port=@bind_port" if @bind_port %>
+<%= "bind_port=#{@bind_port}" if @bind_port %>
 
 # Path to the extensions.  Note that this can be a colon-separated list of
 # paths.  For example:
@@ -92,7 +92,7 @@ force_gateway_on_subnet = <%= node["quantum"]["force_gateway_on_subnet"] %>
 # The messaging module to use, defaults to kombu.
 rpc_backend = <%= node["quantum"]["rpc_backend"] %>
 # Size of RPC thread pool
-rpc_thread_pool_size = <%= node["quantum"]["rpc_backend"] %>
+rpc_thread_pool_size = <%= node["quantum"]["rpc_thread_pool_size"] %>
 # Size of RPC connection pool
 rpc_conn_pool_size = <%= node["quantum"]["rpc_conn_pool_size"] %>
 # Seconds to wait for a response from call or multicall
@@ -119,15 +119,15 @@ fake_rabbit = <%= node["quantum"]["fake_rabbit"] %>
 # SSL certification authority file (valid only if SSL enabled)'
 # kombu_ssl_ca_certs =
 # IP address of the RabbitMQ installation
-rabbit_host = <%= node["quantum"]["rabbit_host"] %>
+rabbit_host = <%= @rabbit_host %>
 # Password of the RabbitMQ server
-rabbit_password = <%= node["quantum"]["rabbit_password"] %>
+rabbit_password = <%= @rabbit_password %>
 # Port where RabbitMQ server is running/listening
-rabbit_port = <%= node["quantum"]["rabbit_port"] %>
+rabbit_port = <%= @rabbit_port %>
 # User ID used for RabbitMQ connections
-rabbit_userid = <%= node["quantum"]["rabbit_userid"] %>
+rabbit_userid = <%= @rabbit_userid %>
 # Location of a virtual RabbitMQ installation.
-rabbit_virtual_host = <%= node["quantum"]["rabbit_virtual_host"] %>
+rabbit_virtual_host = <%= @rabbit_virtual_host %>
 # Maximum retries with trying to connect to RabbitMQ
 # (the default of 0 implies an infinite retry count)
 rabbit_max_retries = <%= node["quantum"]["rabbit_max_retries"] %>

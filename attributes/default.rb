@@ -4,7 +4,12 @@ default["quantum"]["custom_template_banner"] = "
 "
 
 default["quantum"]["keystone_service_chef_role"] = "keystone"
+default["quantum"]["quantum_service_chef_role"] = "quantum"
 default["quantum"]["rabbit_server_chef_role"] = "rabbitmq-server"
+
+default["quantum"]["interface_plugin"] = "openvswitch"
+default["quantum"]["openvswitch"]["ini_file"] =
+  "/etc/quantum/plugins/openvswitch/ovs_quantum_plugin.ini"
 
 
 default["quantum"]["db"]["username"] = "quantum"
@@ -12,6 +17,8 @@ default["quantum"]["db"]["username"] = "quantum"
 default["quantum"]["service_tenant_name"] = "service"
 default["quantum"]["service_user"] = "quantum"
 default["quantum"]["service_role"] = "admin"
+default["quantum"]["service_role"] = "admin"
+default["quantum"]["region"] = "RegionOne"
 default["quantum"]["server"]["auth"]["cache_dir"] = "/var/cache/quantum/server"
 
 
@@ -49,7 +56,7 @@ default["quantum"]["rabbit_host"] = "localhost"
 default["quantum"]["rabbit_password"] = "guest"
 default["quantum"]["rabbit_port"] = "5672"
 default["quantum"]["rabbit_userid"] = "guest"
-default["quantum"]["rabbit_virtual_host"] = "guest"
+default["quantum"]["rabbit_virtual_host"] = "/"
 default["quantum"]["rabbit_max_retries"] = "0"
 default["quantum"]["rabbit_retry_interval"] = "0"
 # Possible values:
@@ -121,16 +128,17 @@ when "suse"
   default["quantum"]["group"] = "openstack-quantum"
   default["quantum"]["platform"] = {
     "mysql_python_packages" => [ "python-mysql" ],
+    "keystone_python_packages" => [ "python-keystone" ],
     "quantum_common_packages" => [ "openstack-quantum", "python-quantumclient" ],
     "quantum_server_packages" => [ "openstack-quantum-server"],
     "quantum_l3_agent_packages" => [ "openstack-quantum-l3-agent"],
     "quantum_dhcp_agent_packages" => [ "openstack-quantum-dhcp-agent"],
     "quantum_openvswitch_agent_packages" => [ "openstack-quantum-openvswitch-agent"],
-    "quantum_server_service" => "quantum-server",
-    "quantum_l3_agent_service" => "quantum-l3-agent",
-    "quantum_dhcp_agent_service" => "quantum-dhcp-agent",
-    "quantum_openvswitch_agent_service" => "quantum-openvswitch-agent",
-    "quantum_linuxbridge_agent_service" => "quantum-linuxbridge-agent",
+    "quantum_server_service" => "openstack-quantum",
+    "quantum_l3_agent_service" => "openstack-quantum-l3-agent",
+    "quantum_dhcp_agent_service" => "openstack-quantum-dhcp-agent",
+    "quantum_openvswitch_agent_service" => "openstack-quantum-openvswitch-agent",
+    "quantum_linuxbridge_agent_service" => "openstack-quantum-linuxbridge-agent",
     "quantum_server_process_name" => "quantum-server",
     "quantum_l3_agent_process_name" => "quantum-l3-agent",
     "quantum_dhcp_agent_process_name" => "quantum-dhcp-agent",
