@@ -10,6 +10,8 @@ default["quantum"]["rabbit_server_chef_role"] = "rabbitmq-server"
 default["quantum"]["interface_plugin"] = "openvswitch"
 default["quantum"]["openvswitch"]["ini_file"] =
   "/etc/quantum/plugins/openvswitch/ovs_quantum_plugin.ini"
+default["quantum"]["l3-agent"]["ini_file"] = "/etc/quantum/l3_agent.ini"
+default["quantum"]["dhcp-agent"]["ini_file"] = "/etc/quantum/dhcp_agent.ini"
 
 
 default["quantum"]["db"]["username"] = "quantum"
@@ -25,6 +27,7 @@ default["quantum"]["server"]["auth"]["cache_dir"] = "/var/cache/quantum/server"
 default["quantum"]["verbose"] = "True"
 default["quantum"]["debug"] = "True"
 default["quantum"]["state_path"] = "/var/lib/quantum"
+default["quantum"]["log_dir"] = "/var/log/quantum"
 default["quantum"]["bind_interface"] = "lo"
 default["quantum"]["bind_port"] = "9696"
 default["quantum"]["core_plugin_list"] = {
@@ -120,8 +123,23 @@ default["quantum"]["ovs"]["tunnel_bridge"] = "br-tun"
 default["quantum"]["ovs"]["int_peer_patch_port"] = "patch-tun"
 default["quantum"]["ovs"]["tun_peer_patch_port"] = "patch-int"
 default["quantum"]["ovs"]["local_interface"] = "eth0"
-
-
+default["quantum"]["use_namespace"] = "True"
+default["quantum"]["external_bridge"] = "br-ex"
+default["quantum"]["interface_driver_list"] = {
+	"OVSInterfaceDriver" => "quantum.agent.linux.interface.OVSInterfaceDriver",
+	"BridgeInterfaceDriver" => "quantum.agent.linux.interface.BridgeInterfaceDriver"
+}
+default["quantum"]["l3-agent"]["interface_driver"] = default["quantum"]["interface_driver_list"]["OVSInterfaceDriver"]
+default["quantum"]["l3-agent"]["use_namespace"] = default["quantum"]["use_namespace"]
+default["quantum"]["l3-agent"]["metadata_port"] = "9697"
+default["quantum"]["l3-agent"]["send_arp_for_ha"] = "3"
+default["quantum"]["l3-agent"]["periodic_interval"] = "40"
+default["quantum"]["l3-agent"]["periodic_fuzzy_delay"] = "5"
+default["quantum"]["dhcp-agent"]["resync_interval"] = "5"
+default["quantum"]["dhcp-agent"]["interface_driver"] = default["quantum"]["interface_driver_list"]["OVSInterfaceDriver"]
+default["quantum"]["dhcp-agent"]["dhcp_driver"] = "quantum.agent.linux.dhcp.Dnsmasq"
+default["quantum"]["dhcp-agent"]["use_namespaces"] = default["quantum"]["use_namespace"]
+	
 case node["platform"]
 when "suse"
   default["quantum"]["user"] = "openstack-quantum"

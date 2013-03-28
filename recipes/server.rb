@@ -46,7 +46,11 @@ else
 end
 
 # used for gre tunelling only
-local_ip = node["network"]["ipaddress_#{node["quantum"]["ovs"]["local_interface"]}"]
+local_interface =  node["quantum"]["ovs"]["local_interface"]
+interface_node = node["network"]["interfaces"][local_interface]["addresses"]
+local_ip = interface_node.select do |address, data|
+  data['family'] == "inet"
+end[0][0]
 
 # Instead of the search to find the keystone service, put this
 # into openstack-common as a common attribute?
@@ -156,85 +160,19 @@ keystone_register "Register Quantum Endpoint" do
   action :create_endpoint
 end
 
-["/etc/quantum", "/etc/quantum/plugins", "/etc/quantum/plugins/openvswitch"].
-each do |i|
-  directory i do
-    owner "root"
-    group node["quantum"]["group"]
-    mode  00750
-  end
-end
-
-rabbit_info = config_by_role node["quantum"]["rabbit_server_chef_role"], "queue"
-rabbit_host = rabbit_info["host"] || node["quantum"]["rabbit_host"]
-rabbit_port = rabbit_info["port"] || node["quantum"]["rabbit_port"]
-rabbit_userid = rabbit_info["username"] || node["quantum"]["rabbit_userid"]
-rabbit_virtual_host = rabbit_info["vhost"] || node["quantum"]["rabbit_virtual_host"]
-# FIXME: rabbit passwords should be hanlded using opnestack-common libraries
-rabbit_password = node["quantum"]["rabbit_password"]
-
-template "/etc/quantum/quantum.conf" do
-  source "quantum.conf.erb"
-  owner  "root"
-  group  node["quantum"]["group"]
-  mode   00640
-  variables(
-    :bind_address => bind_address,
-    :bind_port => quantum_endpoint.port,
-    :identity_endpoint => identity_admin_endpoint,
-    :service_pass => service_pass,
-    :rabbit_host => rabbit_host,
-    :rabbit_port => rabbit_port,
-    :rabbit_userid => rabbit_userid,
-    :rabbit_virtual_host => rabbit_virtual_host,
-    :rabbit_password => rabbit_password
-  )
-
-  notifies :restart, "service[quantum-server]"
-end
-
-template "/etc/quantum/api-paste.ini" do
-  source "api-paste.ini.erb"
-  owner  "root"
-  group  node["quantum"]["group"]
-  mode   00640
-
-  notifies :restart, "service[quantum-server]"
-end
-
-#
-# cfg file generation for plugins
-#
+include_recipe("quantum::common")
 case node["quantum"]["interface_plugin"]
 when "openvswitch"
-  template node["quantum"]["openvswitch"]["ini_file"] do
-    source "ovs_quantum_plugin.ini.erb"
-    owner  "root"
-    group  node["quantum"]["group"]
-    mode   00640
-    variables(
-      :sql_connection => sql_connection,
-      :local_ip => local_ip,
-    )
-
-    notifies :restart, "service[quantum-server]"
-  end
-  template "/etc/sysconfig/quantum" do
-    source "etc.sysconfig.quantum.erb"
-    owner  "root"
-    group  "root"
-    mode   00644
-    variables(
-      :ini_file => node["quantum"]["openvswitch"]["ini_file"]
-    )
-
-    notifies :restart, "service[quantum-server]"
-  end
+	include_recipe("quantum::ovs-common")
 end
-
 service "quantum-server" do
   service_name platform_options["quantum_server_service"]
   supports :status => true, :restart => true
+  subscribes :restart, resources("template[/etc/quantum/quantum.conf]")
+  subscribes :restart, resources("template[/etc/quantum/api-paste.ini]")
+  if node["quantum"]["interface_plugin"] == "openvswitch"
+    subscribes :restart, resources("template[#{node["quantum"]["openvswitch"]["ini_file"]}]")
+  end
 
   action [:enable, :start]
 end
