@@ -37,13 +37,6 @@ else
   end[0][0]
 end
 
-# used for gre tunelling only
-local_interface =  node["quantum"]["ovs"]["local_interface"]
-interface_node = node["network"]["interfaces"][local_interface]["addresses"]
-local_ip = interface_node.select do |address, data|
-  data['family'] == "inet"
-end[0][0]
-
 # Instead of the search to find the keystone service, put this
 # into openstack-common as a common attribute?
 keystone = config_by_role node["quantum"]["keystone_service_chef_role"], "keystone"
