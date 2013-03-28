@@ -123,14 +123,14 @@ default["quantum"]["ovs"]["tunnel_bridge"] = "br-tun"
 default["quantum"]["ovs"]["int_peer_patch_port"] = "patch-tun"
 default["quantum"]["ovs"]["tun_peer_patch_port"] = "patch-int"
 default["quantum"]["ovs"]["local_interface"] = "eth0"
-default["quantum"]["use_namespace"] = "True"
+default["quantum"]["use_namespaces"] = "True"
 default["quantum"]["external_bridge"] = "br-ex"
 default["quantum"]["interface_driver_list"] = {
 	"OVSInterfaceDriver" => "quantum.agent.linux.interface.OVSInterfaceDriver",
 	"BridgeInterfaceDriver" => "quantum.agent.linux.interface.BridgeInterfaceDriver"
 }
 default["quantum"]["l3-agent"]["interface_driver"] = default["quantum"]["interface_driver_list"]["OVSInterfaceDriver"]
-default["quantum"]["l3-agent"]["use_namespace"] = default["quantum"]["use_namespace"]
+default["quantum"]["l3-agent"]["use_namespacse"] = default["quantum"]["use_namespaces"]
 default["quantum"]["l3-agent"]["metadata_port"] = "9697"
 default["quantum"]["l3-agent"]["send_arp_for_ha"] = "3"
 default["quantum"]["l3-agent"]["periodic_interval"] = "40"
@@ -138,7 +138,7 @@ default["quantum"]["l3-agent"]["periodic_fuzzy_delay"] = "5"
 default["quantum"]["dhcp-agent"]["resync_interval"] = "5"
 default["quantum"]["dhcp-agent"]["interface_driver"] = default["quantum"]["interface_driver_list"]["OVSInterfaceDriver"]
 default["quantum"]["dhcp-agent"]["dhcp_driver"] = "quantum.agent.linux.dhcp.Dnsmasq"
-default["quantum"]["dhcp-agent"]["use_namespaces"] = default["quantum"]["use_namespace"]
+default["quantum"]["dhcp-agent"]["use_namespaces"] = default["quantum"]["use_namespaces"]
 	
 case node["platform"]
 when "suse"
