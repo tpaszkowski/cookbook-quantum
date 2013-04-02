@@ -64,7 +64,7 @@ end
 directory "/var/lib/quantum" do
   owner "root"
   group node["quantum"]["group"]
-  mode  00770
+  mode  00775
 end
 
 rabbit_info = config_by_role node["quantum"]["rabbit_server_chef_role"], "queue"

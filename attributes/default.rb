@@ -12,6 +12,7 @@ default["quantum"]["openvswitch"]["ini_file"] =
   "/etc/quantum/plugins/openvswitch/ovs_quantum_plugin.ini"
 default["quantum"]["l3-agent"]["ini_file"] = "/etc/quantum/l3_agent.ini"
 default["quantum"]["dhcp-agent"]["ini_file"] = "/etc/quantum/dhcp_agent.ini"
+default["quantum"]["metadata-agent"]["ini_file"] = "/etc/quantum/metadata_agent.ini"
 
 
 default["quantum"]["db"]["username"] = "quantum"
@@ -150,15 +151,18 @@ when "suse"
     "quantum_common_packages" => [ "openstack-quantum", "python-quantumclient" ],
     "quantum_server_packages" => [ "openstack-quantum-server"],
     "quantum_l3_agent_packages" => [ "openstack-quantum-l3-agent"],
+    "quantum_metadata_agent_packages" => [ "openstack-quantum-metadata-agent"],
     "quantum_dhcp_agent_packages" => [ "openstack-quantum-dhcp-agent"],
     "quantum_openvswitch_agent_packages" => [ "openstack-quantum-openvswitch-agent"],
     "quantum_server_service" => "openstack-quantum",
     "quantum_l3_agent_service" => "openstack-quantum-l3-agent",
+    "quantum_metadata_agent_service" => "openstack-quantum-metadata-agent",
     "quantum_dhcp_agent_service" => "openstack-quantum-dhcp-agent",
     "quantum_openvswitch_agent_service" => "openstack-quantum-openvswitch-agent",
     "quantum_linuxbridge_agent_service" => "openstack-quantum-linuxbridge-agent",
     "quantum_server_process_name" => "quantum-server",
     "quantum_l3_agent_process_name" => "quantum-l3-agent",
+    "quantum_metadata_agent_process_name" => "quantum-metadata-agent",
     "quantum_dhcp_agent_process_name" => "quantum-dhcp-agent",
     "quantum_openvswitch_agent_process_name" => "quantum-openvswitch-agent",
     "quantum_linuxbridge_agent_process_name" => "quantum-linuxbridge-agent",
