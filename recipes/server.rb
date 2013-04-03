@@ -161,15 +161,34 @@ keystone_register "Register Quantum Endpoint" do
 end
 
 include_recipe("quantum::common")
+
+ini_file = nil
+
 case node["quantum"]["interface_plugin"]
 when "openvswitch"
-	include_recipe("quantum::ovs-common")
+  include_recipe("quantum::ovs-common")
+  ini_file = node["quantum"]["openvswitch"]["ini_file"]
+
 end
+
+template "/etc/sysconfig/quantum" do
+  source "etc.sysconfig.quantum.erb"
+  owner  "root"
+  group  node["quantum"]["group"]
+  mode   00640
+  variables(
+    :ini_file => ini_file
+  )
+
+  only_if { !ini_file.nil? }
+end
+
 service "quantum-server" do
   service_name platform_options["quantum_server_service"]
   supports :status => true, :restart => true
   subscribes :restart, resources("template[/etc/quantum/quantum.conf]")
   subscribes :restart, resources("template[/etc/quantum/api-paste.ini]")
+  subscribes :restart, resources("template[/etc/sysconfig/quantum]")
   if node["quantum"]["interface_plugin"] == "openvswitch"
     subscribes :restart, resources("template[#{node["quantum"]["openvswitch"]["ini_file"]}]")
   end

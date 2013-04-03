@@ -140,6 +140,29 @@ default["quantum"]["dhcp-agent"]["resync_interval"] = "5"
 default["quantum"]["dhcp-agent"]["interface_driver"] = default["quantum"]["interface_driver_list"]["OVSInterfaceDriver"]
 default["quantum"]["dhcp-agent"]["dhcp_driver"] = "quantum.agent.linux.dhcp.Dnsmasq"
 default["quantum"]["dhcp-agent"]["use_namespaces"] = default["quantum"]["use_namespaces"]
+
+default["quantum"]["net"]["external"]["name"] = "network-external"
+default["quantum"]["net"]["internal"]["name"] = "network-internal"
+default["quantum"]["router"]["main"]["name"] = "router-main"
+default["quantum"]["subnets"]["external"] = [
+  {
+     "name" => "external",
+     "cidr" => "195.93.178.0/24",
+     "gateway" => "195.93.178.254",
+     "start" => "195.93.178.11",
+     "end" => "195.93.178.99"
+  }
+]
+default["quantum"]["subnets"]["internal"] = [
+  {
+     "name" => "internal",
+     "cidr" => "192.168.0.0/24",
+     "gateway" => "192.168.0.254",
+     "start" => "192.168.0.11",
+     "end" => "192.168.0.249",
+     "dns" => "192.168.0.254"
+  }
+]
 	
 case node["platform"]
 when "suse"
@@ -154,18 +177,22 @@ when "suse"
     "quantum_metadata_agent_packages" => [ "openstack-quantum-metadata-agent"],
     "quantum_dhcp_agent_packages" => [ "openstack-quantum-dhcp-agent"],
     "quantum_openvswitch_agent_packages" => [ "openstack-quantum-openvswitch-agent"],
+    "quantum_linuxbridge_agent_packages" => [ "openstack-quantum-linuxbridge-agent"],
+    "openvswitch_switch_packages" => [ "openvswitch-switch" ],
     "quantum_server_service" => "openstack-quantum",
     "quantum_l3_agent_service" => "openstack-quantum-l3-agent",
     "quantum_metadata_agent_service" => "openstack-quantum-metadata-agent",
     "quantum_dhcp_agent_service" => "openstack-quantum-dhcp-agent",
     "quantum_openvswitch_agent_service" => "openstack-quantum-openvswitch-agent",
     "quantum_linuxbridge_agent_service" => "openstack-quantum-linuxbridge-agent",
+    "openvswitch_switch_service" => "openvswitch-switch",
     "quantum_server_process_name" => "quantum-server",
     "quantum_l3_agent_process_name" => "quantum-l3-agent",
     "quantum_metadata_agent_process_name" => "quantum-metadata-agent",
     "quantum_dhcp_agent_process_name" => "quantum-dhcp-agent",
     "quantum_openvswitch_agent_process_name" => "quantum-openvswitch-agent",
     "quantum_linuxbridge_agent_process_name" => "quantum-linuxbridge-agent",
+    "openvswitch_switch_process_name" => "ovs-vswitchd",
     "package_overrides" => ""
   }
 
