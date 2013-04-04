@@ -195,3 +195,5 @@ service "quantum-server" do
 
   action [:enable, :start]
 end
+
+include_recipe("quantum::setup")

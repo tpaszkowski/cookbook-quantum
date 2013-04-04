@@ -16,57 +16,112 @@
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
 
-#
-# all this stuff shoud be moved to quantum resources (like in the keystone)
-#
-execute "create_main_router" do
-  command "quantum router-create #{node["quantum"]["router"]["main"]["name"]}"
-
-  not_if "quantum router-list | grep -q ' #{node["quantum"]["router"]["main"]["name"]} '"
+class ::Chef::Recipe
+  include ::Openstack
 end
 
-execute "create_external_network" do
-  command "quantum net-create #{node["quantum"]["net"]["external"]["name"]} --router:external=True"
+identity_admin_endpoint = endpoint "identity-admin"
 
-  not_if "quantum net-list | grep -q ' #{node["quantum"]["net"]["external"]["name"]} '"
+# Instead of the search to find the keystone service, put this
+# into openstack-common as a common attribute?
+keystone = config_by_role node["quantum"]["keystone_service_chef_role"], "keystone"
+
+# Instead of the search to find the keystone service, put this
+# into openstack-common as a common attribute?
+ksadmin_user = keystone["admin_user"]
+ksadmin_tenant_name = keystone["admin_tenant_name"]
+ksadmin_pass = user_password ksadmin_user
+auth_uri = ::URI.decode identity_admin_endpoint.to_s
+service_pass = service_password "quantum"
+service_tenant_name = node["quantum"]["service_tenant_name"]
+service_user = node["quantum"]["service_user"]
+service_role = node["quantum"]["service_role"]
+
+quantum_register "create router" do
+  auth_uri auth_uri
+  admin_user ksadmin_user
+  admin_tenant_name ksadmin_tenant_name
+  admin_password ksadmin_pass
+  router_name node["quantum"]["router"]["main"]["name"]
+
+  action :create_router
 end
 
-execute "create_external_network" do
-  command "quantum net-create #{node["quantum"]["net"]["internal"]["name"]} --shared"
+quantum_register "create external network" do
+  auth_uri auth_uri
+  admin_user ksadmin_user
+  admin_tenant_name ksadmin_tenant_name
+  admin_password ksadmin_pass
+  external true
+  network_name node["quantum"]["net"]["external"]["name"]
 
-  not_if "quantum net-list | grep -q ' #{node["quantum"]["net"]["internal"]["name"]} '"
+  action :create_network
+end
+
+quantum_register "create internal network" do
+  auth_uri auth_uri
+  admin_user ksadmin_user
+  admin_tenant_name ksadmin_tenant_name
+  admin_password ksadmin_pass
+  network_name node["quantum"]["net"]["internal"]["name"]
+
+  action :create_network
 end
 
 node["quantum"]["subnets"]["external"].each do |subnet|
-  execute "create_external_subnet_#{subnet["name"]}" do
-    command "quantum subnet-create --name #{subnet["name"]} --allocation-pool start=#{subnet["start"]},end=#{subnet["end"]} --gateway #{subnet["gateway"]} --disable-dhcp #{node["quantum"]["net"]["external"]["name"]} #{subnet["cidr"]}"
+  quantum_register "create external subnet #{subnet["name"]}" do
+    auth_uri auth_uri
+    admin_user ksadmin_user
+    admin_tenant_name ksadmin_tenant_name
+    admin_password ksadmin_pass
+    dhcp false
+    network_name node["quantum"]["net"]["external"]["name"]
+    subnet_name subnet["name"]
+    cidr subnet["cidr"]
+    gateway subnet["gateway"]
+    pool_start subnet["start"]
+    pool_end subnet["end"]
 
-    not_if "quantum subnet-list | grep -q ' #{subnet["name"]} '"
+    action :create_subnet
   end
 end
 
-execute "setup_default_gateway_on_main_router" do
-  command "quantum router-gateway-set #{node["quantum"]["router"]["main"]["name"]} #{node["quantum"]["net"]["external"]["name"]}"
+quantum_register "router gateway set for external network" do
+  auth_uri auth_uri
+  admin_user ksadmin_user
+  admin_tenant_name ksadmin_tenant_name
+  admin_password ksadmin_pass
+  network_name node["quantum"]["net"]["external"]["name"]
+  router_name node["quantum"]["router"]["main"]["name"]
 
-  not_if "quantum router-show #{node["quantum"]["router"]["main"]["name"]} | grep -q 'network_id'"
+  action :router_gateway_set
 end
 
 node["quantum"]["subnets"]["internal"].each do |subnet|
-  execute "create_internal_subnet_#{subnet["name"]}" do
-    command "quantum subnet-create --name #{subnet["name"]} --allocation-pool start=#{subnet["start"]},end=#{subnet["end"]} --gateway #{subnet["gateway"]} --dns #{subnet["dns"]} #{node["quantum"]["net"]["internal"]["name"]} #{subnet["cidr"]}"
+  quantum_register "create internal subnet #{subnet["name"]}" do
+    auth_uri auth_uri
+    admin_user ksadmin_user
+    admin_tenant_name ksadmin_tenant_name
+    admin_password ksadmin_pass
+    dhcp true
+    shared true
+    network_name node["quantum"]["net"]["internal"]["name"]
+    subnet_name subnet["name"]
+    cidr subnet["cidr"]
+    gateway subnet["gateway"]
+    pool_start subnet["start"]
+    pool_end subnet["end"]
 
-    not_if "quantum subnet-list | grep -q ' #{subnet["name"]} '"
+    action :create_subnet
   end
-  subnet_id_match=`quantum subnet-show -f shell --variable id #{subnet["name"]}`.match(/^id=\"([0-9a-f\-]+)\"$/)
-  unless subnet_id_match.nil?
-    subnet_id=subnet_id_match[1]
-    execute "associate_internal_network_with_router" do
-      command "quantum router-interface-add #{node["quantum"]["router"]["main"]["name"]} #{subnet["name"]}"
+  quantum_register "router interface add #{subnet["name"]}" do
+    auth_uri auth_uri
+    admin_user ksadmin_user
+    admin_tenant_name ksadmin_tenant_name
+    admin_password ksadmin_pass
+    subnet_name subnet["name"]
+    router_name node["quantum"]["router"]["main"]["name"]
 
-      not_if "quantum router-port-list #{node["quantum"]["router"]["main"]["name"]} | grep -q  '#{subnet_id}'"
-    end
+    action :router_interface_add
   end
 end
-
-
-

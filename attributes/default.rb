@@ -146,7 +146,7 @@ default["quantum"]["net"]["internal"]["name"] = "network-internal"
 default["quantum"]["router"]["main"]["name"] = "router-main"
 default["quantum"]["subnets"]["external"] = [
   {
-     "name" => "external",
+     "name" => "external-subnet",
      "cidr" => "195.93.178.0/24",
      "gateway" => "195.93.178.254",
      "start" => "195.93.178.11",
@@ -155,7 +155,7 @@ default["quantum"]["subnets"]["external"] = [
 ]
 default["quantum"]["subnets"]["internal"] = [
   {
-     "name" => "internal",
+     "name" => "internal-subnet",
      "cidr" => "192.168.0.0/24",
      "gateway" => "192.168.0.254",
      "start" => "192.168.0.11",
